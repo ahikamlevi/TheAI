@@ -61,7 +61,14 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.2.8f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\NewMonoBehaviourScript.cs" />
+    <Compile Include="Assets\Scripts\AiStateModel.cs" />
+    <Compile Include="Assets\Scripts\Data\AiConfig.cs" />
+    <Compile Include="Assets\Scripts\CountryConfig.cs" />
+    <Compile Include="Assets\Scripts\CoreEnums.cs" />
+    <Compile Include="Assets\Scripts\GlobalGameState.cs" />
+    <Compile Include="Assets\Scripts\Data\AiConfigsDatabase.cs" />
+    <Compile Include="Assets\Scripts\CountriesDatabase.cs" />
+    <Compile Include="Assets\Scripts\CountryModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
