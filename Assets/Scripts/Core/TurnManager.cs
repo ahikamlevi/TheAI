@@ -2,6 +2,7 @@ using UnityEngine;
 using TheAI.Models;
 using TheAI.Models.Enums;
 using TheAI.Systems;
+using TheAI.UI;
 
 namespace TheAI.Core
 {
@@ -9,6 +10,7 @@ namespace TheAI.Core
     {
         [Header("References")]
         public GameStateInitializer GameStateInitializer;
+        public HudController Hud;
 
         private readonly RivalAiSystem _rivalAiSystem = new();
         private readonly WinLoseSystem _winLoseSystem = new();
@@ -30,6 +32,11 @@ namespace TheAI.Core
 
             GameState = GameStateInitializer.CreateInitialGameState();
 
+            if (Hud != null)
+            {
+                Hud.SetGameState(GameState);
+            }
+
             if (GameState != null)
             {
                 GameState.CurrentTurn = 0;
@@ -39,6 +46,8 @@ namespace TheAI.Core
                     Outcome = GameOutcome.None,
                     Reason = GameEndReason.None
                 };
+
+                Hud?.RefreshHud();
             }
         }
 
@@ -57,11 +66,18 @@ namespace TheAI.Core
 
             GameState.AdvanceTurn();
             EvaluateWinLossConditions();
+
+            Hud?.RefreshHud();
         }
 
         public void OnEndTurnButtonClicked()
         {
             EndPlayerTurn();
+        }
+
+        public void RefreshHudAfterMajorAction()
+        {
+            Hud?.RefreshHud();
         }
 
         private void ProcessPlayerActions()
