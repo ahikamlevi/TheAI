@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using TheAI.Models;
@@ -15,9 +16,14 @@ namespace TheAI.Core
         public CountryListController CountryList;
         public PlayerActionPanel PlayerActions;
 
+        private readonly PlayerActionSystem _playerActionSystem = new();
         private readonly RivalAiSystem _rivalAiSystem = new();
+        private readonly NationalIssueSystem _nationalIssueSystem = new();
+        private readonly EventSystem _eventSystem = new();
+        private readonly ApprovalSystem _approvalSystem = new();
         private readonly WinLoseSystem _winLoseSystem = new();
         private readonly SaveLoadService _saveLoadService = new();
+        private readonly List<PlayerActionEntry> _queuedPlayerActions = new();
 
         [Header("Runtime State")]
         public GlobalGameState GameState;
@@ -60,6 +66,7 @@ namespace TheAI.Core
                 };
 
                 Hud?.RefreshHud();
+                _queuedPlayerActions.Clear();
             }
         }
 
@@ -82,6 +89,7 @@ namespace TheAI.Core
             Hud?.SetGameState(GameState);
             CountryList?.SetGameState(GameState);
             PlayerActions?.RefreshAfterGameStateChanged();
+            _queuedPlayerActions.Clear();
         }
 
         public void EndPlayerTurn()
@@ -92,15 +100,23 @@ namespace TheAI.Core
                 return;
             }
 
+            if (GameState.IsGameOver)
+            {
+                Debug.LogWarning("Game is already over. No further turns can be played.");
+                return;
+            }
+
             ProcessPlayerActions();
             ProcessRivalAiActions();
-            ProcessCountryReactions();
+            UpdateNationalIssues();
             ProcessEvents();
-
-            GameState.AdvanceTurn();
+            RecalculateGlobalApproval();
             EvaluateWinLossConditions();
 
+            GameState.AdvanceTurn();
+
             Hud?.RefreshHud();
+            CountryList?.RefreshList();
         }
 
         public void OnEndTurnButtonClicked()
@@ -113,9 +129,49 @@ namespace TheAI.Core
             Hud?.RefreshHud();
         }
 
+        public void QueuePlayerAction(PlayerAction action, bool executeImmediately = true)
+        {
+            if (action == null)
+            {
+                return;
+            }
+
+            if (GameState == null)
+            {
+                Debug.LogWarning("Cannot queue action because the game state has not been initialized.");
+                return;
+            }
+
+            _queuedPlayerActions.Add(new PlayerActionEntry
+            {
+                Action = action,
+                Executed = executeImmediately
+            });
+
+            if (executeImmediately)
+            {
+                _playerActionSystem.ExecutePlayerAction(GameState, action);
+            }
+        }
+
         private void ProcessPlayerActions()
         {
-            // Placeholder for processing player actions queued during the current turn.
+            if (_queuedPlayerActions.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var entry in _queuedPlayerActions)
+            {
+                if (entry.Executed)
+                {
+                    continue;
+                }
+
+                _playerActionSystem.ExecutePlayerAction(GameState, entry.Action);
+            }
+
+            _queuedPlayerActions.Clear();
         }
 
         private void ProcessRivalAiActions()
@@ -123,14 +179,36 @@ namespace TheAI.Core
             _rivalAiSystem.ProcessRivalsTurn(GameState);
         }
 
-        private void ProcessCountryReactions()
+        private void UpdateNationalIssues()
         {
-            // Placeholder for applying country reactions to AI actions.
+            _nationalIssueSystem.UpdateIssuesPerTurn(GameState);
         }
 
         private void ProcessEvents()
         {
-            // Placeholder for resolving issues and events triggered this turn.
+            var events = _eventSystem.GenerateTurnEvents(GameState);
+            foreach (var gameEvent in events)
+            {
+                _eventSystem.ApplyEvent(GameState, gameEvent);
+            }
+        }
+
+        private void RecalculateGlobalApproval()
+        {
+            if (GameState?.Ais == null)
+            {
+                return;
+            }
+
+            foreach (var ai in GameState.Ais)
+            {
+                if (ai == null)
+                {
+                    continue;
+                }
+
+                _approvalSystem.RecalculateGlobalApproval(GameState, ai.Id);
+            }
         }
 
         private void EvaluateWinLossConditions()
@@ -142,6 +220,12 @@ namespace TheAI.Core
         {
             var fileName = string.IsNullOrWhiteSpace(SaveFileName) ? "savegame.json" : SaveFileName;
             return Path.Combine(Application.persistentDataPath, fileName);
+        }
+
+        private struct PlayerActionEntry
+        {
+            public PlayerAction Action;
+            public bool Executed;
         }
     }
 }
