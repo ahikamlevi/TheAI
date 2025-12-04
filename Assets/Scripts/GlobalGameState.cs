@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TheAI.Models.Enums;
 
 namespace TheAI.Models
 {
+    [Serializable]
     public class GlobalGameState
     {
         public List<CountryModel> Countries = new();
@@ -32,6 +34,7 @@ namespace TheAI.Models
         }
     }
 
+    [Serializable]
     public struct GameOverResult
     {
         public GameOutcome Outcome;

@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using TheAI.Models;
 using TheAI.Models.Enums;
@@ -11,15 +12,21 @@ namespace TheAI.Core
         [Header("References")]
         public GameStateInitializer GameStateInitializer;
         public HudController Hud;
+        public CountryListController CountryList;
+        public PlayerActionPanel PlayerActions;
 
         private readonly RivalAiSystem _rivalAiSystem = new();
         private readonly WinLoseSystem _winLoseSystem = new();
+        private readonly SaveLoadService _saveLoadService = new();
 
         [Header("Runtime State")]
         public GlobalGameState GameState;
 
         [Header("Turn Settings")]
         public int TurnDurationMs = 1000;
+
+        [Header("Save/Load Settings")]
+        public string SaveFileName = "savegame.json";
 
         public void StartNewGame()
         {
@@ -37,6 +44,11 @@ namespace TheAI.Core
                 Hud.SetGameState(GameState);
             }
 
+            if (CountryList != null)
+            {
+                CountryList.SetGameState(GameState);
+            }
+
             if (GameState != null)
             {
                 GameState.CurrentTurn = 0;
@@ -49,6 +61,27 @@ namespace TheAI.Core
 
                 Hud?.RefreshHud();
             }
+        }
+
+        public void OnSaveGameButtonClicked()
+        {
+            var savePath = GetSaveFilePath();
+            _saveLoadService.SaveGame(GameState, savePath);
+        }
+
+        public void OnLoadGameButtonClicked()
+        {
+            var savePath = GetSaveFilePath();
+            var loadedState = _saveLoadService.LoadGame(savePath);
+            if (loadedState == null)
+            {
+                return;
+            }
+
+            GameState = loadedState;
+            Hud?.SetGameState(GameState);
+            CountryList?.SetGameState(GameState);
+            PlayerActions?.RefreshAfterGameStateChanged();
         }
 
         public void EndPlayerTurn()
@@ -103,6 +136,12 @@ namespace TheAI.Core
         private void EvaluateWinLossConditions()
         {
             _winLoseSystem.EvaluateAndSetGameOver(GameState);
+        }
+
+        private string GetSaveFilePath()
+        {
+            var fileName = string.IsNullOrWhiteSpace(SaveFileName) ? "savegame.json" : SaveFileName;
+            return Path.Combine(Application.persistentDataPath, fileName);
         }
     }
 }

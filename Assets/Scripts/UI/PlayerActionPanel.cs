@@ -16,6 +16,8 @@ namespace TheAI.UI
         public TurnManager TurnManager;
         public HudController Hud;
         public CountryListController CountryList;
+        public Button SaveGameButton;
+        public Button LoadGameButton;
 
         [Header("UI Elements")]
         public Button HelpNationButton;
@@ -79,6 +81,8 @@ namespace TheAI.UI
             AttachButtonListener(ManipulateAgentButton, OnManipulateAgentClicked);
             AttachButtonListener(ResearchKnowledgeButton, OnResearchKnowledgeClicked);
             AttachButtonListener(EndTurnButton, OnEndTurnClicked);
+            AttachButtonListener(SaveGameButton, OnSaveGameClicked);
+            AttachButtonListener(LoadGameButton, OnLoadGameClicked);
 
             if (StrengthSlider != null)
             {
@@ -208,6 +212,18 @@ namespace TheAI.UI
             RefreshUi();
         }
 
+        private void OnSaveGameClicked()
+        {
+            TurnManager?.OnSaveGameButtonClicked();
+        }
+
+        private void OnLoadGameClicked()
+        {
+            TurnManager?.OnLoadGameButtonClicked();
+            RefreshUi();
+            UpdateInteractableState();
+        }
+
         private void ExecuteAction(PlayerAction action)
         {
             var state = CurrentState;
@@ -219,6 +235,12 @@ namespace TheAI.UI
 
             _playerActionSystem.ExecutePlayerAction(state, action);
             RefreshUi();
+        }
+
+        public void RefreshAfterGameStateChanged()
+        {
+            RefreshUi();
+            UpdateInteractableState();
         }
 
         private void RefreshUi()
