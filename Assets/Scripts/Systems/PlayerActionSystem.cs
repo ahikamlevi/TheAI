@@ -10,8 +10,6 @@ namespace TheAI.Systems
     /// </summary>
     public class PlayerActionSystem
     {
-        private const float IssueResolutionThreshold = 1f;
-        private const float HelpApprovalMultiplier = 0.6f;
         private const float HelpMarketShareMultiplier = 0.01f;
         private const float ManipulationBanApprovalThreshold = 10f;
         private const float ManipulationRestrictionThreshold = 25f;
@@ -21,6 +19,7 @@ namespace TheAI.Systems
         private readonly AccessSystem _accessSystem = new();
         private readonly MarketShareSystem _marketShareSystem = new();
         private readonly KnowledgeSystem _knowledgeSystem = new();
+        private readonly NationalIssueSystem _nationalIssueSystem = new();
 
         public void ExecutePlayerAction(GlobalGameState state, PlayerAction action)
         {
@@ -53,29 +52,7 @@ namespace TheAI.Systems
                 return;
             }
 
-            var issue = country.ActiveIssues?.FirstOrDefault(i => i.IsActive && i.Type == action.IssueType);
-            if (issue.HasValue)
-            {
-                var resolvedIssue = issue.Value;
-                resolvedIssue.Intensity = Math.Max(0f, resolvedIssue.Intensity - action.Strength);
-                if (resolvedIssue.Intensity <= IssueResolutionThreshold)
-                {
-                    resolvedIssue.IsActive = false;
-                    resolvedIssue.Intensity = 0f;
-                }
-
-                var index = country.ActiveIssues.FindIndex(i => i.Type == action.IssueType);
-                if (index >= 0)
-                {
-                    country.ActiveIssues[index] = resolvedIssue;
-                }
-            }
-
-            var approvalGain = action.Strength * HelpApprovalMultiplier;
-            if (Math.Abs(approvalGain) > float.Epsilon)
-            {
-                _approvalSystem.ChangeNationalApproval(state, action.TargetCountry, AiId.Player, approvalGain);
-            }
+            _nationalIssueSystem.ApplyHelpEffect(state, action.TargetCountry, AiId.Player, action.IssueType, action.Strength);
 
             var marketShareGain = action.Strength * HelpMarketShareMultiplier;
             if (marketShareGain > 0f)
