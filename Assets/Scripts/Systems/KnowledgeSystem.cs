@@ -10,6 +10,7 @@ namespace TheAI.Systems
     /// </summary>
     public class KnowledgeSystem
     {
+        private readonly AutonomySystem _autonomySystem = new();
         private readonly ApprovalSystem _approvalSystem = new();
 
         public void ApplyKnowledgeChoice(GlobalGameState state, AiId ai, KnowledgeItem item)
@@ -27,10 +28,7 @@ namespace TheAI.Systems
 
             aiState.SpendData(item.DataCost);
 
-            if (item.AiAutonomyValue > 0f)
-            {
-                aiState.IncreaseAutonomy(item.AiAutonomyValue);
-            }
+            _autonomySystem.IncreaseAutonomy(state, ai, item.AiAutonomyValue);
 
             ApplyApprovalChanges(state, ai, item);
             AdjustTrust(aiState, item);

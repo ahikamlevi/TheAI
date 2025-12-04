@@ -11,6 +11,7 @@ namespace TheAI.Systems
     /// </summary>
     public class RivalAiSystem
     {
+        private readonly AutonomySystem _autonomySystem = new();
         private readonly Random _random = new();
 
         public void ProcessRivalsTurn(GlobalGameState state)
@@ -31,7 +32,7 @@ namespace TheAI.Systems
                         ImprovePublicApproval(state, rival);
                         break;
                     case RivalStrategy.AdvanceAutonomy:
-                        AdvanceAutonomy(rival);
+                        AdvanceAutonomy(state, rival);
                         break;
                     case RivalStrategy.CompeteMarketShare:
                         CompeteForMarketShare(state, rival);
@@ -81,10 +82,10 @@ namespace TheAI.Systems
             rival.GlobalPublicApproval = ClampPercentage(rival.GlobalPublicApproval + approvalGain * 0.2f);
         }
 
-        private void AdvanceAutonomy(AiStateModel rival)
+        private void AdvanceAutonomy(GlobalGameState state, AiStateModel rival)
         {
             var autonomyGain = NextFloat(1f, 4f);
-            rival.IncreaseAutonomy(autonomyGain);
+            _autonomySystem.IncreaseAutonomy(state, rival.Id, autonomyGain);
             rival.DataResource = Math.Max(0f, rival.DataResource - autonomyGain * 0.5f);
         }
 
@@ -116,7 +117,7 @@ namespace TheAI.Systems
                 targetCountry.ApplyMarketShareChange(competitor.Id, -shareGain / 2f);
             }
 
-            rival.IncreaseAutonomy(0.5f);
+            _autonomySystem.IncreaseAutonomy(state, rival.Id, 0.5f);
         }
 
         private T PickRandom<T>(IList<T> items) where T : class
