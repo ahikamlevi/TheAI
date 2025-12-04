@@ -114,9 +114,14 @@ namespace TheAI.Systems
             }
         }
 
+        private List<NationalIssueType> GetPossibleIssues()
+        {
+            return Enum.GetValues(typeof(NationalIssueType)).Cast<NationalIssueType>().ToList();
+        }
+
         private void TryCreateNewIssue(CountryModel country)
         {
-            var possibleIssues = Enum.GetValues<NationalIssueType>().ToList();
+            var possibleIssues = GetPossibleIssues();
             var existingTypes = country.ActiveIssues?.Select(i => i.Type).ToHashSet() ?? new HashSet<NationalIssueType>();
             var availableIssues = possibleIssues.Where(type => !existingTypes.Contains(type)).ToList();
 

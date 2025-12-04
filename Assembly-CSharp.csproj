@@ -62,13 +62,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\AiStateModel.cs" />
+    <Compile Include="Assets\Scripts\Core\TurnManager.cs" />
     <Compile Include="Assets\Scripts\Data\AiConfig.cs" />
+    <Compile Include="Assets\Scripts\Systems\NationalIssueSystem.cs" />
+    <Compile Include="Assets\Scripts\Systems\RivalAiSystem.cs" />
     <Compile Include="Assets\Scripts\CountryConfig.cs" />
     <Compile Include="Assets\Scripts\CoreEnums.cs" />
     <Compile Include="Assets\Scripts\GlobalGameState.cs" />
+    <Compile Include="Assets\Scripts\Systems\ApprovalSystem.cs" />
     <Compile Include="Assets\Scripts\Data\AiConfigsDatabase.cs" />
+    <Compile Include="Assets\Scripts\Systems\AccessSystem.cs" />
     <Compile Include="Assets\Scripts\CountriesDatabase.cs" />
+    <Compile Include="Assets\Scripts\Systems\KnowledgeSystem.cs" />
+    <Compile Include="Assets\Scripts\Systems\AutonomySystem.cs" />
     <Compile Include="Assets\Scripts\CountryModel.cs" />
+    <Compile Include="Assets\Scripts\Systems\WinLoseSystem.cs" />
+    <Compile Include="Assets\Scripts\Systems\PlayerActionSystem.cs" />
+    <Compile Include="Assets\Scripts\PlayerAction.cs" />
+    <Compile Include="Assets\Scripts\Systems\MarketShareSystem.cs" />
+    <Compile Include="Assets\Scripts\KnowledgeItem.cs" />
+    <Compile Include="Assets\Scripts\Core\GameStateInitializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
