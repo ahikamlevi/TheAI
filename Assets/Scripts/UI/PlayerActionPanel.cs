@@ -233,7 +233,15 @@ namespace TheAI.UI
                 return;
             }
 
-            _playerActionSystem.ExecutePlayerAction(state, action);
+            if (TurnManager != null)
+            {
+                TurnManager.QueuePlayerAction(action);
+            }
+            else
+            {
+                _playerActionSystem.ExecutePlayerAction(state, action);
+            }
+
             RefreshUi();
         }
 
