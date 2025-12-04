@@ -1,5 +1,6 @@
 using UnityEngine;
 using TheAI.Models;
+using TheAI.Models.Enums;
 using TheAI.Systems;
 
 namespace TheAI.Core
@@ -10,6 +11,7 @@ namespace TheAI.Core
         public GameStateInitializer GameStateInitializer;
 
         private readonly RivalAiSystem _rivalAiSystem = new();
+        private readonly WinLoseSystem _winLoseSystem = new();
 
         [Header("Runtime State")]
         public GlobalGameState GameState;
@@ -32,6 +34,11 @@ namespace TheAI.Core
             {
                 GameState.CurrentTurn = 0;
                 GameState.IsGameOver = false;
+                GameState.GameResult = new GameOverResult
+                {
+                    Outcome = GameOutcome.None,
+                    Reason = GameEndReason.None
+                };
             }
         }
 
@@ -79,7 +86,7 @@ namespace TheAI.Core
 
         private void EvaluateWinLossConditions()
         {
-            // Placeholder for checking victory or defeat conditions and updating IsGameOver.
+            _winLoseSystem.EvaluateAndSetGameOver(GameState);
         }
     }
 }
