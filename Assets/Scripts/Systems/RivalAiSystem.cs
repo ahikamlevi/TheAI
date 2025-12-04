@@ -12,6 +12,7 @@ namespace TheAI.Systems
     public class RivalAiSystem
     {
         private readonly AutonomySystem _autonomySystem = new();
+        private readonly NationalIssueSystem _nationalIssueSystem = new();
         private readonly Random _random = new();
 
         public void ProcessRivalsTurn(GlobalGameState state)
@@ -77,9 +78,19 @@ namespace TheAI.Systems
                 return;
             }
 
-            var approvalGain = NextFloat(2f, 6f);
-            country.ApplyApprovalChange(rival.Id, approvalGain);
-            rival.GlobalPublicApproval = ClampPercentage(rival.GlobalPublicApproval + approvalGain * 0.2f);
+            NationalIssueState? issueToHelp = country.ActiveIssues?.FirstOrDefault(issue => issue.IsActive);
+            if (issueToHelp.HasValue)
+            {
+                var effort = NextFloat(2f, 6f);
+                _nationalIssueSystem.ApplyHelpEffect(state, country.Id, rival.Id, issueToHelp.Value.Type, effort);
+                rival.GlobalPublicApproval = state.GetAi(rival.Id)?.GlobalPublicApproval ?? rival.GlobalPublicApproval;
+            }
+            else
+            {
+                var approvalGain = NextFloat(2f, 6f);
+                country.ApplyApprovalChange(rival.Id, approvalGain);
+                rival.GlobalPublicApproval = ClampPercentage(rival.GlobalPublicApproval + approvalGain * 0.2f);
+            }
         }
 
         private void AdvanceAutonomy(GlobalGameState state, AiStateModel rival)
