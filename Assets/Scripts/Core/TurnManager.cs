@@ -1,5 +1,6 @@
 using UnityEngine;
 using TheAI.Models;
+using TheAI.Systems;
 
 namespace TheAI.Core
 {
@@ -7,6 +8,8 @@ namespace TheAI.Core
     {
         [Header("References")]
         public GameStateInitializer GameStateInitializer;
+
+        private readonly RivalAiSystem _rivalAiSystem = new();
 
         [Header("Runtime State")]
         public GlobalGameState GameState;
@@ -61,7 +64,7 @@ namespace TheAI.Core
 
         private void ProcessRivalAiActions()
         {
-            // Placeholder for running rival AI decision-making.
+            _rivalAiSystem.ProcessRivalsTurn(GameState);
         }
 
         private void ProcessCountryReactions()
