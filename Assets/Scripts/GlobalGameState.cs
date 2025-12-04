@@ -11,6 +11,7 @@ namespace TheAI.Models
 
         public int CurrentTurn;
         public bool IsGameOver;
+        public GameOverResult GameResult;
 
         public AiStateModel PlayerAi => GetAi(AiId.Player);
         public List<AiStateModel> RivalAis => Ais.Where(ai => ai.Id != AiId.Player).ToList();
@@ -29,5 +30,11 @@ namespace TheAI.Models
         {
             CurrentTurn++;
         }
+    }
+
+    public struct GameOverResult
+    {
+        public GameOutcome Outcome;
+        public GameEndReason Reason;
     }
 }

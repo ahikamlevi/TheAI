@@ -59,4 +59,21 @@ namespace TheAI.Models.Enums
         SocialUnrest,
         Energy
     }
+
+    [Serializable]
+    public enum GameOutcome
+    {
+        None,
+        Win,
+        Lose
+    }
+
+    [Serializable]
+    public enum GameEndReason
+    {
+        None,
+        PlayerEscaped,
+        RivalEscaped,
+        LowApprovalAndAccessBans
+    }
 }
